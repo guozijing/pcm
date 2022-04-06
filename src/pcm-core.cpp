@@ -112,7 +112,7 @@ extern "C" {
 		// 获取PCM_API 实例 如果没有 new 一个, new 的时候完成了MSR的初始化
 		PCM * m = PCM::getInstance(); 
 		globalConf.fixedCfg = NULL; // default
-		// Returns the maximum number of custom (general-purpose) core events supported by CPU  初始看起来是0的样子
+		// Returns the maximum number of custom (general-purpose) core events supported by CPU  初始值为0  赋值为8
 		globalConf.nGPCounters = m->getMaxCustomCoreEvents();
 		// 编码后的event 数组
 		globalConf.gpCounterCfg = globalRegs;
@@ -170,7 +170,7 @@ extern "C" {
 	}
 }
 
-// 打印使用方法 略
+// 打印使用方法 略 progname=pcm-core
 void print_usage(const string progname)
 {
 	cerr << "\n Usage: \n " << progname
@@ -345,23 +345,34 @@ int main(int argc, char * argv[])
 	double delay = -1.0;
 	char *sysCmd = NULL;
 	char **sysArgv = NULL;
+	// 当前event 
 	uint32 cur_event = 0;
 	bool csv = false;
+	// 输出结果的比例 看起来是
 	uint64 txn_rate = 1;
 	MainLoop mainLoop;
+	// program= pcm-core
 	string program = string(argv[0]);
+	// 存放events 编码后数据
 	EventSelectRegister regs[PERF_MAX_COUNTERS];
+	//  配置参数？
 	PCM::ExtendedCustomCoreEventDescription conf;
 	bool show_partial_core_output = false;
+	// 存储诸多bit
 	std::bitset<MAX_CORES> ycores;
 
 
+	// 获取实例
         PCM * m = PCM::getInstance();
 
+	// 使用默认参数
 	conf.fixedCfg = NULL; // default
+	// 值为8的样子 从cpuid 中读取出来
 	conf.nGPCounters = m->getMaxCustomCoreEvents();
+	// 编码后的event 数组
 	conf.gpCounterCfg = regs;
 
+	// 分析参数
 	if(argc > 1) do
 	{
 		argv++;
@@ -387,7 +398,7 @@ int main(int argc, char * argv[])
 			}
 			continue;
 		}
-		else
+		else // MainLoop.numberOfIterations 获取迭代次数
 		if (mainLoop.parseArg(*argv))
 		{
 			continue;
@@ -395,6 +406,7 @@ int main(int argc, char * argv[])
 		else if (strncmp(*argv, "-c",2) == 0 ||
 				strncmp(*argv, "/c",2) == 0)
 		{
+			// 格式化打印CPU 型号 GenuineIntel-6-6A-6
 			cout << m->getCPUFamilyModelString() << "\n";
 			exit(EXIT_SUCCESS);
 		}
@@ -434,6 +446,7 @@ int main(int argc, char * argv[])
 					exit(EXIT_FAILURE);
 				}
 
+				// 将输入的数目的core 置为true
 				ycores.set(atoi(s.c_str()),true);
 			}
 			if(m->getNumCores() > MAX_CORES)
@@ -614,3 +627,4 @@ int main(int argc, char * argv[])
 	});
 	exit(EXIT_SUCCESS);
 }
+
