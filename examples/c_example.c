@@ -3,9 +3,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// 獲取CPU 的id
 int pcm_getcpu()
 {
 	int id = -1;
+	// 匯編定義 
 	asm volatile (
 		"rdtscp\n\t"
 		"mov %%ecx, %0\n\t":
@@ -51,9 +53,9 @@ int main(int argc, const char *argv[])
 		a[i] = rand();
 		b[i] = rand();
 		c[i] = rand();
-	}
+	} // 生成三個長度為100的隨機數組
 
-#ifdef PCM_DYNAMIC_LIB
+#ifdef PCM_DYNAMIC_LIB // 看起來像是 PCM庫函數的賦值
 	void * handle = dlopen("libpcm.so", RTLD_LAZY);
 	if(!handle) {
 		printf("Abort: could not (dynamically) load shared library \n");
@@ -88,7 +90,7 @@ int main(int argc, const char *argv[])
         return -2;
     }
 
-    for (i = 0; i < numEvents; ++i)
+    for (int i = 0; i < numEvents; ++i)
     {
         PCM.pcm_c_build_core_event(i, argv[i+1]);
     }
@@ -97,7 +99,7 @@ int main(int argc, const char *argv[])
 	PCM.pcm_c_init();
 
 	printf("[c_example] Calling PCM start()\n");
-	PCM.pcm_c_start();
+	PCM.pcm_c_start(); // start 和 stop 看起來要夾著執行函數
 	for(i=0;i<10000;i++)
 		c[i%100] = 4 * a[i%100] + b[i%100];
 	for(i=0;i<100;i++)
@@ -106,7 +108,7 @@ int main(int argc, const char *argv[])
 
 	printf("[c_example] PCM measurement stopped, compute result %u\n", total);
 
-	lcore_id = pcm_getcpu();
+	lcore_id = pcm_getcpu(); // 獲取CPU id
 	printf("C:%lu I:%lu, IPC:%3.2f\n",
 		PCM.pcm_c_get_cycles(lcore_id),
 		PCM.pcm_c_get_instr(lcore_id),

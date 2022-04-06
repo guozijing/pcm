@@ -133,7 +133,7 @@ class TemporalThreadAffinity  // speedup trick for Linux, FreeBSD, DragonFlyBSD,
     TemporalThreadAffinity(); // forbidden
 #if defined(__FreeBSD__) || (defined(__DragonFly__) && __DragonFly_version >= 400707)
     cpu_set_t old_affinity;
-    bool restore;
+    const bool restore;
 
 public:
     TemporalThreadAffinity(uint32 core_id, bool checkStatus = true, const bool restore_ = true)
@@ -152,7 +152,6 @@ public:
         // CPU_CMP() returns true if old_affinity is NOT equal to new_affinity
         if (!(CPU_CMP(&old_affinity, &new_affinity)))
         {
-            restore = false;
             return; // the same affinity => return
         }
         res = pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &new_affinity);
@@ -172,7 +171,7 @@ public:
     cpu_set_t * old_affinity;
     static constexpr auto maxCPUs = 8192;
     const size_t set_size;
-    bool restore;
+    const bool restore;
 
 public:
     TemporalThreadAffinity(const uint32 core_id, bool checkStatus = true, const bool restore_ = true)
@@ -194,7 +193,6 @@ public:
         if (CPU_EQUAL_S(set_size, old_affinity, new_affinity))
         {
             CPU_FREE(new_affinity);
-            restore = false;
             return;
         }
         res = pthread_setaffinity_np(pthread_self(), set_size, new_affinity);
@@ -1429,6 +1427,7 @@ bool PCM::initMSR()
 #ifndef __APPLE__
     try
     {
+        // 一个core 一个MSR
         for (int i = 0; i < (int)num_cores; ++i)
         {
             if ( isCoreOnline( (int32)i ) ) {
@@ -2076,6 +2075,7 @@ PCM::PCM() :
     pkgMinimumPower(-1),
     pkgMaximumPower(-1),
     systemTopology(new SystemRoot(this)),
+    programmed_pmu(false),
     joulesPerEnergyUnit(0),
 #ifdef __linux__
     resctrl(*this),
@@ -2412,7 +2412,6 @@ PCM::ErrorCode PCM::program(const PCM::ProgramMode mode_, const void * parameter
     ExtendedCustomCoreEventDescription * pExtDesc = (ExtendedCustomCoreEventDescription *)parameter_;
 
 #ifdef PCM_USE_PERF
-    closePerfHandles(silent);
     if (!silent) std::cerr << "Trying to use Linux perf events...\n";
     const char * no_perf_env = std::getenv("PCM_NO_PERF");
     if (no_perf_env != NULL && std::string(no_perf_env) == std::string("1"))
@@ -2463,7 +2462,7 @@ PCM::ErrorCode PCM::program(const PCM::ProgramMode mode_, const void * parameter
     }
 #endif
 
-    if (programmed_core_pmu == false)
+    if (true)
     {
         if((canUsePerf == false) && PMUinUse())
         {
@@ -2742,6 +2741,8 @@ PCM::ErrorCode PCM::program(const PCM::ProgramMode mode_, const void * parameter
     }
     #endif
 
+    programmed_pmu = true;
+
     lastProgrammedCustomCounters.clear();
     lastProgrammedCustomCounters.resize(num_cores);
     core_global_ctrl_value = 0ULL;
@@ -2773,8 +2774,6 @@ PCM::ErrorCode PCM::program(const PCM::ProgramMode mode_, const void * parameter
             return status;
         }
     }
-
-    programmed_core_pmu = true;
 
     if (canUsePerf && !silent)
     {
@@ -3808,9 +3807,9 @@ const char * PCM::getUArchCodename(const int32 cpu_model_param) const
     return "unknown";
 }
 
-#ifdef PCM_USE_PERF
-void PCM::closePerfHandles(const bool silent)
+void PCM::cleanupPMU(const bool silent)
 {
+#ifdef PCM_USE_PERF
     if (canUsePerf)
     {
         auto cleanOne = [this](PerfEventHandleContainer & cont)
@@ -3833,17 +3832,6 @@ void PCM::closePerfHandles(const bool silent)
         perfEventTaskHandle.clear();
 
         if (!silent) std::cerr << " Closed perf event handles\n";
-    }
-}
-#endif
-
-void PCM::cleanupPMU(const bool silent)
-{
-    programmed_core_pmu = false;
-#ifdef PCM_USE_PERF
-    closePerfHandles(silent);
-    if (canUsePerf)
-    {
         return;
     }
 #endif
@@ -5754,14 +5742,15 @@ ServerPCICFGUncore::ServerPCICFGUncore(uint32 socket_, const PCM * pcm) :
    , cpu_model(pcm->getCPUModel())
    , qpi_speed(0)
 {
+    initRegisterLocations(pcm);
+    initBuses(socket_, pcm);
+
     if (pcm->useLinuxPerfForUncore())
     {
         initPerf(socket_, pcm);
     }
     else
     {
-        initRegisterLocations(pcm);
-        initBuses(socket_, pcm);
         initDirect(socket_, pcm);
     }
 

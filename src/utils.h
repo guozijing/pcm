@@ -144,7 +144,7 @@ void print_cpu_details();
 class ThreadGroupTempAffinity
 {
     GROUP_AFFINITY PreviousGroupAffinity;
-    bool restore;
+    const bool restore;
 
     ThreadGroupTempAffinity();                                              // forbidden
     ThreadGroupTempAffinity(const ThreadGroupTempAffinity &);               // forbidden
@@ -195,7 +195,7 @@ private:
 
     void match(std::istream & istr) const
     {
-        istr >> std::noskipws;
+        istr >> std::noskipws; // 忽略空白符
         const auto len = length();
         char * buffer = new char[len + 2];
         buffer[0] = 0;
@@ -497,16 +497,5 @@ inline HANDLE openMSRDriver()
 void check_and_set_silent(int argc, char * argv[], null_stream &nullStream2);
 
 void print_pid_collection_message(int pid);
-
-inline bool isPIDOption(char * argv [])
-{
-    return strncmp(*argv, "-pid", 4) == 0 || strncmp(*argv, "/pid", 4) == 0;
-}
-
-inline void parsePID(int argc, char* argv[], int& pid)
-{
-    parseParam(argc, argv, "pid", [&pid](const char* p) { if (p) pid = atoi(p); });
-}
-
 
 } // namespace pcm

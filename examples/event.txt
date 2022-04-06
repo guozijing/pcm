@@ -1,0 +1,134 @@
+CORE_POWER.LVL0_TURBO_LICENSE:Core cycles where the core was running in a manner where Turbo may be clipped to the Non-AVX turbo schedule.
+cpu/umask=0x07,event=0x28,name=CORE_POWER.LVL0_TURBO_LICENSE,offcore_rsp=0x00/
+CORE_POWER.LVL1_TURBO_LICENSE:Core cycles where the core was running in a manner where Turbo may be clipped to the AVX2 turbo schedule.
+cpu/umask=0x18,event=0x28,name=CORE_POWER.LVL1_TURBO_LICENSE,offcore_rsp=0x00/
+CORE_POWER.LVL2_TURBO_LICENSE:Core cycles where the core was running in a manner where Turbo may be clipped to the AVX512 turbo schedule.
+cpu/umask=0x20,event=0x28,name=CORE_POWER.LVL2_TURBO_LICENSE,offcore_rsp=0x00/
+
+OFFCORE_REQUESTS_OUTSTANDING.DEMAND_DATA_RD:For every cycle, increments by the number of outstanding demand data read requests pending.
+cpu/umask=0x01,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.DEMAND_DATA_RD,offcore_rsp=0x00/
+OFFCORE_REQUESTS_OUTSTANDING.DEMAND_CODE_RD:For every cycle, increments by the number of outstanding code read requests pending.
+cpu/umask=0x02,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.DEMAND_CODE_RD,offcore_rsp=0x00/
+OFFCORE_REQUESTS_OUTSTANDING.CYCLES_WITH_DEMAND_CODE_RD:Cycles with outstanding code read requests pending.
+cpu/umask=0x02,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.CYCLES_WITH_DEMAND_CODE_RD,offcore_rsp=0x00,cmask=1/
+OFFCORE_REQUESTS_OUTSTANDING.CYCLES_WITH_DEMAND_RFO:Cycles where at least 1 outstanding Demand RFO request is pending.
+cpu/umask=0x04,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.CYCLES_WITH_DEMAND_RFO,offcore_rsp=0x00,cmask=1/
+OFFCORE_REQUESTS_OUTSTANDING.ALL_DATA_RD:For every cycle, increments by the number of outstanding data read requests pending.
+cpu/umask=0x08,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.ALL_DATA_RD,offcore_rsp=0x00/
+OFFCORE_REQUESTS_OUTSTANDING.CYCLES_WITH_DATA_RD:Cycles where at least 1 outstanding data read request is pending.
+cpu/umask=0x08,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.CYCLES_WITH_DATA_RD,offcore_rsp=0x00,cmask=1/
+OFFCORE_REQUESTS_OUTSTANDING.L3_MISS_DEMAND_DATA_RD:For every cycle, increments by the number of demand data read requests pending that are known to have missed the L3 cache.
+cpu/umask=0x10,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.L3_MISS_DEMAND_DATA_RD,offcore_rsp=0x00/
+OFFCORE_REQUESTS_OUTSTANDING.CYCLES_WITH_L3_MISS_DEMAND_DATA_RD:Cycles where at least one demand data read request known to have missed the L3 cache is pending.
+cpu/umask=0x10,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.CYCLES_WITH_L3_MISS_DEMAND_DATA_RD,offcore_rsp=0x00,cmask=1/
+OFFCORE_REQUESTS_OUTSTANDING.L3_MISS_DEMAND_DATA_RD_GE_6:Cycles where the core is waiting on at least 6 outstanding demand data read requests known to have missed the L3 cache.
+cpu/umask=0x10,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.L3_MISS_DEMAND_DATA_RD_GE_6,offcore_rsp=0x00,cmask=6/
+IDQ_UOPS_NOT_DELIVERED.CORE:Uops not delivered by IDQ when backend of the machine is not stalled
+cpu/umask=0x01,event=0x9c,name=IDQ_UOPS_NOT_DELIVERED.CORE,offcore_rsp=0x00/
+IDQ_UOPS_NOT_DELIVERED.CYCLES_0_UOPS_DELIV.CORE:Cycles when no uops are not delivered by the IDQ when backend of the machine is not stalled
+cpu/umask=0x01,event=0x9c,name=IDQ_UOPS_NOT_DELIVERED.CYCLES_0_UOPS_DELIV.CORE,offcore_rsp=0x00,cmask=5/
+RESOURCE_STALLS.SCOREBOARD:Counts cycles where the pipeline is stalled due to serializing operations.
+cpu/umask=0x02,event=0xa2,name=RESOURCE_STALLS.SCOREBOARD,offcore_rsp=0x00/
+OFFCORE_REQUESTS.DEMAND_DATA_RD:Demand Data Read requests sent to uncore
+cpu/umask=0x01,event=0xb0,name=OFFCORE_REQUESTS.DEMAND_DATA_RD,offcore_rsp=0x00/
+OFFCORE_REQUESTS.DEMAND_CODE_RD:Counts cacheable and non-cacheable code reads to the core.
+cpu/umask=0x02,event=0xb0,name=OFFCORE_REQUESTS.DEMAND_CODE_RD,offcore_rsp=0x00/
+OFFCORE_REQUESTS.DEMAND_RFO:Demand RFO requests including regular RFOs, locks, ItoM
+cpu/umask=0x04,event=0xb0,name=OFFCORE_REQUESTS.DEMAND_RFO,offcore_rsp=0x00/
+OFFCORE_REQUESTS.ALL_DATA_RD:Demand and prefetch data reads
+cpu/umask=0x08,event=0xB0,name=OFFCORE_REQUESTS.ALL_DATA_RD,offcore_rsp=0x00/
+OFFCORE_REQUESTS.L3_MISS_DEMAND_DATA_RD:Counts demand data read requests that miss the L3 cache.
+cpu/umask=0x10,event=0xb0,name=OFFCORE_REQUESTS.L3_MISS_DEMAND_DATA_RD,offcore_rsp=0x00/
+OFFCORE_REQUESTS.ALL_REQUESTS:Counts memory transactions sent to the uncore.
+cpu/umask=0x80,event=0xB0,name=OFFCORE_REQUESTS.ALL_REQUESTS,offcore_rsp=0x00/
+UOPS_EXECUTED.CORE_CYCLES_GE_1:Cycles at least 1 micro-op is executed from any thread on physical core.
+cpu/umask=0x02,event=0xB1,name=UOPS_EXECUTED.CORE_CYCLES_GE_1,offcore_rsp=0x00,cmask=1/
+UOPS_EXECUTED.CORE_CYCLES_GE_2:Cycles at least 2 micro-op is executed from any thread on physical core.
+cpu/umask=0x02,event=0xB1,name=UOPS_EXECUTED.CORE_CYCLES_GE_2,offcore_rsp=0x00,cmask=2/
+UOPS_EXECUTED.CORE_CYCLES_GE_3:Cycles at least 3 micro-op is executed from any thread on physical core.
+cpu/umask=0x02,event=0xB1,name=UOPS_EXECUTED.CORE_CYCLES_GE_3,offcore_rsp=0x00,cmask=3/
+UOPS_EXECUTED.CORE_CYCLES_GE_4:Cycles at least 4 micro-op is executed from any thread on physical core.
+cpu/umask=0x02,event=0xB1,name=UOPS_EXECUTED.CORE_CYCLES_GE_4,offcore_rsp=0x00,cmask=4/
+CORE_SNOOP_RESPONSE.MISS:Line not found snoop reply
+cpu/umask=0x01,event=0xef,name=CORE_SNOOP_RESPONSE.MISS,offcore_rsp=0x00/
+CORE_SNOOP_RESPONSE.I_HIT_FSE:Hit snoop reply without sending the data, line invalidated.
+cpu/umask=0x02,event=0xef,name=CORE_SNOOP_RESPONSE.I_HIT_FSE,offcore_rsp=0x00/
+CORE_SNOOP_RESPONSE.S_HIT_FSE:Hit snoop reply without sending the data, line kept in Shared state.
+cpu/umask=0x04,event=0xef,name=CORE_SNOOP_RESPONSE.S_HIT_FSE,offcore_rsp=0x00/
+CORE_SNOOP_RESPONSE.S_FWD_M:HitM snoop reply with data, line kept in Shared state
+cpu/umask=0x08,event=0xef,name=CORE_SNOOP_RESPONSE.S_FWD_M,offcore_rsp=0x00/
+CORE_SNOOP_RESPONSE.I_FWD_M:HitM snoop reply with data, line invalidated.
+cpu/umask=0x10,event=0xef,name=CORE_SNOOP_RESPONSE.I_FWD_M,offcore_rsp=0x00/
+CORE_SNOOP_RESPONSE.I_FWD_FE:Hit snoop reply with data, line invalidated.
+cpu/umask=0x20,event=0xef,name=CORE_SNOOP_RESPONSE.I_FWD_FE,offcore_rsp=0x00/
+CORE_SNOOP_RESPONSE.S_FWD_FE:Hit snoop reply with data, line kept in Shared state.
+cpu/umask=0x40,event=0xef,name=CORE_SNOOP_RESPONSE.S_FWD_FE,offcore_rsp=0x00/
+OCR.READS_TO_CORE.L3_HIT.SNOOP_HIT_NO_FWD:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that resulted in a snoop that hit in another core, which did not forward the data.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.L3_HIT.SNOOP_HIT_NO_FWD,offcore_rsp=0x4003C0477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.L3_HIT.SNOOP_HIT_NO_FWD,offcore_rsp=0x4003C0477/
+OCR.READS_TO_CORE.L3_HIT.SNOOP_HITM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that resulted in a snoop hit a modified line in another core's caches which forwarded the data.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.L3_HIT.SNOOP_HITM,offcore_rsp=0x10003C0477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.L3_HIT.SNOOP_HITM,offcore_rsp=0x10003C0477/
+OCR.READS_TO_CORE.L3_HIT.SNOOP_HIT_WITH_FWD:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that resulted in a snoop hit in another core's caches which forwarded the unmodified data to the requesting core.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.L3_HIT.SNOOP_HIT_WITH_FWD,offcore_rsp=0x8003C0477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.L3_HIT.SNOOP_HIT_WITH_FWD,offcore_rsp=0x8003C0477/
+OCR.READS_TO_CORE.REMOTE_CACHE.SNOOP_HITM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by a cache on a remote socket where a snoop hit a modified line in another core's caches which forwarded the data.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.REMOTE_CACHE.SNOOP_HITM,offcore_rsp=0x1030000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.REMOTE_CACHE.SNOOP_HITM,offcore_rsp=0x1030000477/
+OCR.READS_TO_CORE.REMOTE_CACHE.SNOOP_HIT_WITH_FWD:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by a cache on a remote socket where a snoop hit in another core's caches which forwarded the unmodified data to the requesting core.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.REMOTE_CACHE.SNOOP_HIT_WITH_FWD,offcore_rsp=0x830000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.REMOTE_CACHE.SNOOP_HIT_WITH_FWD,offcore_rsp=0x830000477/
+OCR.READS_TO_CORE.REMOTE_CACHE.SNOOP_FWD:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by a cache on a remote socket where a snoop was sent and data was returned (Modified or Not Modified).
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.REMOTE_CACHE.SNOOP_FWD,offcore_rsp=0x1830000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.REMOTE_CACHE.SNOOP_FWD,offcore_rsp=0x1830000477/
+OCR.READS_TO_CORE.DRAM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by DRAM.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.DRAM,offcore_rsp=0x73C000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.DRAM,offcore_rsp=0x73C000477/
+OCR.READS_TO_CORE.LOCAL_DRAM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by DRAM attached to this socket, unless in Sub NUMA Cluster(SNC) Mode.  In SNC Mode counts only those DRAM accesses that are controlled by the close SNC Cluster.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.LOCAL_DRAM,offcore_rsp=0x104000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.LOCAL_DRAM,offcore_rsp=0x104000477/
+OCR.READS_TO_CORE.REMOTE_DRAM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by DRAM attached to another socket.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.REMOTE_DRAM,offcore_rsp=0x730000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.REMOTE_DRAM,offcore_rsp=0x730000477/
+OCR.READS_TO_CORE.REMOTE_PMM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by PMM attached to another socket.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.REMOTE_PMM,offcore_rsp=0x703000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.REMOTE_PMM,offcore_rsp=0x703000477/
+OCR.READS_TO_CORE.LOCAL_PMM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by PMM attached to this socket, unless in Sub NUMA Cluster(SNC) Mode.  In SNC Mode counts only those PMM accesses that are controlled by the close SNC Cluster.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.LOCAL_PMM,offcore_rsp=0x100400477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.LOCAL_PMM,offcore_rsp=0x100400477/
+OCR.READS_TO_CORE.SNC_PMM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that (IC) were supplied by PMM on a distant memory controller of this socket when the system is in SNC (sub-NUMA cluster) mode.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.SNC_PMM,offcore_rsp=0x700800477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.SNC_PMM,offcore_rsp=0x700800477/
+OCR.READS_TO_CORE.SNC_DRAM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by DRAM on a distant memory controller of this socket when the system is in SNC (sub-NUMA cluster) mode.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.SNC_DRAM,offcore_rsp=0x708000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.SNC_DRAM,offcore_rsp=0x708000477/
+OCR.READS_TO_CORE.ANY_RESPONSE:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that have any type of response.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.ANY_RESPONSE,offcore_rsp=0x3F3FFC0477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.ANY_RESPONSE,offcore_rsp=0x3F3FFC0477/
+OCR.READS_TO_CORE.L3_HIT:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that hit in the L3 or were snooped from another core's caches on the same socket.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.L3_HIT,offcore_rsp=0x3F003C0477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.L3_HIT,offcore_rsp=0x3F003C0477/
+OCR.READS_TO_CORE.L3_MISS_LOCAL:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were not supplied by the local socket's L1, L2, or L3 caches and were supplied by the local socket.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.L3_MISS_LOCAL,offcore_rsp=0x3F04400477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.L3_MISS_LOCAL,offcore_rsp=0x3F04400477/
+OCR.READS_TO_CORE.REMOTE:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were not supplied by the local socket's L1, L2, or L3 caches and were supplied by a remote socket.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.REMOTE,offcore_rsp=0x3F33000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.REMOTE,offcore_rsp=0x3F33000477/
+OCR.READS_TO_CORE.L3_MISS:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were not supplied by the local socket's L1, L2, or L3 caches.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.L3_MISS,offcore_rsp=0x3F3FC00477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.L3_MISS,offcore_rsp=0x3F3FC00477/
+OCR.READS_TO_CORE.SNC_CACHE.HIT_WITH_FWD:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that either hit a non-modified line in a distant L3 Cache or were snooped from a distant core's L1/L2 caches on this socket when the system is in SNC (sub-NUMA cluster) mode.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.SNC_CACHE.HIT_WITH_FWD,offcore_rsp=0x808000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.SNC_CACHE.HIT_WITH_FWD,offcore_rsp=0x808000477/
+OCR.READS_TO_CORE.SNC_CACHE.HITM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that hit a modified line in a distant L3 Cache or were snooped from a distant core's L1/L2 caches on this socket when the system is in SNC (sub-NUMA cluster) mode.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.SNC_CACHE.HITM,offcore_rsp=0x1008000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.SNC_CACHE.HITM,offcore_rsp=0x1008000477/
+OCR.READS_TO_CORE.L3_MISS_LOCAL_SOCKET:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that missed the L3 Cache and were supplied by the local socket (DRAM or PMM), whether or not in Sub NUMA Cluster(SNC) Mode.  In SNC Mode counts PMM or DRAM accesses that are controlled by the close or distant SNC Cluster.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.L3_MISS_LOCAL_SOCKET,offcore_rsp=0x70CC00477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.L3_MISS_LOCAL_SOCKET,offcore_rsp=0x70CC00477/
+OCR.READS_TO_CORE.LOCAL_SOCKET_DRAM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by DRAM attached to this socket, whether or not in Sub NUMA Cluster(SNC) Mode.  In SNC Mode counts DRAM accesses that are controlled by the close or distant SNC Cluster.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.LOCAL_SOCKET_DRAM,offcore_rsp=0x70C000477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.LOCAL_SOCKET_DRAM,offcore_rsp=0x70C000477/
+OCR.READS_TO_CORE.LOCAL_SOCKET_PMM:Counts all data read, code read and RFO requests including demands and prefetches to the core caches (L1 or L2) that were supplied by PMM attached to this socket, whether or not in Sub NUMA Cluster(SNC) Mode.  In SNC Mode counts PMM accesses that are controlled by the close or distant SNC Cluster.
+cpu/umask=0x01,event=0xB7,name=OCR.READS_TO_CORE.LOCAL_SOCKET_PMM,offcore_rsp=0x700C00477/
+cpu/umask=0x01,event=0xBB,name=OCR.READS_TO_CORE.LOCAL_SOCKET_PMM,offcore_rsp=0x700C00477/

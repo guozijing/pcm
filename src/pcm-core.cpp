@@ -48,43 +48,80 @@
 using namespace std;
 using namespace pcm;
 
-void build_event(const char * argv, EventSelectRegister *reg, int idx);
+// 将-e 参数读进来的字符串进行解读  主要 放在了events 中保存
+void build_event(const char * argv, EventSelectRegister *reg, int idx); 
 
 struct CoreEvent
 {
-	char name[256];
-	uint64 value;
-	uint64 msr_value;
-	char * description;
-} events[PERF_MAX_CUSTOM_COUNTERS];
+	char name[256]; // cpu/umask=0x20,event=0x28,name=CORE_POWER.LVL2_TURBO_LICENSE,offcore_rsp=0x00/
+	uint64 value; // 用来存储name 中的一些编码结果  放在uint64 中
+	uint64 msr_value;  // offcore_response 
+	char * description; // 估计描述类  没有实际用处的样子
+} events[PERF_MAX_CUSTOM_COUNTERS]; // PERF_MAX_CUSTOM_COUNTERS = 8
 
 extern "C" {
-	SystemCounterState globalSysBeforeState, globalSysAfterState;
-	std::vector<CoreCounterState> globalBeforeState, globalAfterState;
+	SystemCounterState globalSysBeforeState, globalSysAfterState; // sys counters 状态？
+	std::vector<CoreCounterState> globalBeforeState, globalAfterState; // core counters 状态？
 	std::vector<SocketCounterState> globalDummySocketStates;
-	EventSelectRegister globalRegs[PERF_MAX_COUNTERS];
-	PCM::ExtendedCustomCoreEventDescription globalConf;
+	/*	
+		struct EventSelectRegister
+		{
+			union
+			{
+				struct
+				{
+					uint64 event_select : 8;
+					uint64 umask : 8;
+					uint64 usr : 1;
+					uint64 os : 1;
+					uint64 edge : 1;
+					uint64 pin_control : 1;
+					uint64 apic_int : 1;
+					uint64 any_thread : 1;
+					uint64 enable : 1;
+					uint64 invert : 1;
+					uint64 cmask : 8;
+					uint64 in_tx : 1;
+					uint64 in_txcp : 1;
+					uint64 reservedX : 30;
+				} fields;
+				uint64 value;
+			};
 
+			EventSelectRegister() : value(0) {}
+		};
+	*/
+	EventSelectRegister globalRegs[PERF_MAX_COUNTERS]; // PERF_MAX_COUNTERS = 16 存放events 编码后数据
+	PCM::ExtendedCustomCoreEventDescription globalConf; // 配置参数？
+
+	// 主要调用build_event 函数 保存event 内容
 	int pcm_c_build_core_event(uint8_t idx, const char * argv)
 	{
 		if(idx > 3)
 			return -1;
 
 		cout << "building core event " << argv << " " << idx << "\n";
+		// 将-e 参数读进来的字符串进行解读  主要 放在了events 中保存 以及globalRegs[idx]
 		build_event(argv, &globalRegs[idx], idx);
 		return 0;
 	}
 
+	// 看起来是 PCM 实例的初始化  读取cpu的一些信息 存储在MSR中 初始化了一些配置的样子
 	int pcm_c_init()
 	{
-		PCM * m = PCM::getInstance();
+		// 获取PCM_API 实例 如果没有 new 一个, new 的时候完成了MSR的初始化
+		PCM * m = PCM::getInstance(); 
 		globalConf.fixedCfg = NULL; // default
+		// Returns the maximum number of custom (general-purpose) core events supported by CPU  初始看起来是0的样子
 		globalConf.nGPCounters = m->getMaxCustomCoreEvents();
+		// 编码后的event 数组
 		globalConf.gpCounterCfg = globalRegs;
+		// offcore_response
 		globalConf.OffcoreResponseMsrValue[0] = events[0].msr_value;
 		globalConf.OffcoreResponseMsrValue[1] = events[1].msr_value;
 
 		m->resetPMU();
+		// 判断了下core 的类型  ic 使用的sky lake 的event 看不懂………………
 		PCM::ErrorCode status = m->program(PCM::EXT_CUSTOM_CORE_EVENTS, &globalConf);
 		if(status == PCM::Success)
 			return 0;
@@ -94,32 +131,46 @@ extern "C" {
 
 	void pcm_c_start()
 	{
-		PCM * m = PCM::getInstance();
+		PCM * m = PCM::getInstance(); // 再次获取下PCM 实例
+		// 获取下所有counters 的状态？？？ 保存在 BeforeState
 		m->getAllCounterStates(globalSysBeforeState, globalDummySocketStates, globalBeforeState);
 	}
 
 	void pcm_c_stop()
 	{
 		PCM * m = PCM::getInstance();
+		// 再次获取所有counters 状态  保存在after中
 		m->getAllCounterStates(globalSysAfterState, globalDummySocketStates, globalAfterState);
 	}
 
+	// 获取cpu cycles 数
 	uint64_t pcm_c_get_cycles(uint32_t core_id)
 	{
+		// coreCounterState.CpuClkUnhaltedThread 相减
+		// CPU_CLK_UNHALTED.THREAD ---- Cycles when thread is not halted (fixed counter)
+		// 表示非停机状态的机器周期数 CPU机器周期not halted数目
 		return getCycles(globalBeforeState[core_id], globalAfterState[core_id]);
 	}
 
+	// 获取执行指令数
 	uint64_t pcm_c_get_instr(uint32_t core_id)
 	{
+		// coreCountersState.InstRetiredAny
+		// INST_RETIRED.ANY ---- Instructions retired ( fixed counter ) 
+		// 表示消耗的指令数，计数执行过程中消耗的指令数 可以理解为其技术指令从执行到退出的那个退出的次数
 		return getInstructionsRetired(globalBeforeState[core_id], globalAfterState[core_id]);
 	}
 
+	// 看起来是获取固定core 上的固定event 的结果
 	uint64_t pcm_c_get_core_event(uint32_t core_id, uint32_t event_id)
 	{
+		// after.Event[eventID] - before.Event[eventID]
+		// 看起来感觉像是 每个event的值类型都是uint64
 		return getNumberOfCustomEvents(event_id, globalBeforeState[core_id], globalAfterState[core_id]);
 	}
 }
 
+// 打印使用方法 略
 void print_usage(const string progname)
 {
 	cerr << "\n Usage: \n " << progname
@@ -145,11 +196,16 @@ void print_usage(const string progname)
 }
 
 	template <class StateType>
+// 获取state
 void print_custom_stats(const StateType & BeforeState, const StateType & AfterState ,bool csv, uint64 txn_rate)
 {
+	// 获取cycles 数
     const uint64 cycles = getCycles(BeforeState, AfterState);
+	// Reference cycles when thread is not halted (fixed counter)
     const uint64 refCycles = getRefCycles(BeforeState, AfterState);
+	// 获取指令 数
     const uint64 instr = getInstructionsRetired(BeforeState, AfterState);
+	// 打印输出
 	if(!csv)
 	{
 		cout << double(instr)/double(cycles);
@@ -172,6 +228,7 @@ void print_custom_stats(const StateType & BeforeState, const StateType & AfterSt
 		cout << double(refCycles) / double(txn_rate) << ",";
 	}
     const auto max_ctr = PCM::getInstance()->getMaxCustomCoreEvents();
+	// 获取并打印  event 结果
     for (int i = 0; i < max_ctr; ++i)
 		if(!csv) {
 			cout << setw(10);
@@ -198,7 +255,7 @@ bool match(const char * subtoken, const char * name, int * result)
 
     return false;
 }
-
+// events 中记录了更多直观的信息   reg 中记录了编码后信息
 void build_event(const char * argv, EventSelectRegister *reg, int idx)
 {
 	char *token, *subtoken, *saveptr1, *saveptr2;
@@ -215,6 +272,8 @@ void build_event(const char * argv, EventSelectRegister *reg, int idx)
 
 	   offcore_rsp=2,period=10000
 	   */
+
+	// str1 = cpu/umask=0x02,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.DEMAND_CODE_RD,offcore_rsp=0x00/
 	for (j = 1, str1 = (char*) argv; ; j++, str1 = NULL) {
 		token = strtok_r(str1, "/", &saveptr1);
 		if (token == NULL)
@@ -223,11 +282,13 @@ void build_event(const char * argv, EventSelectRegister *reg, int idx)
 		if(strncmp(token,"cpu",3) == 0)
 			continue;
 
+		// str2 = umask=0x02,event=0x60,name=OFFCORE_REQUESTS_OUTSTANDING.DEMAND_CODE_RD,offcore_rsp=0x00
 		for (str2 = token; ; str2 = NULL) {
 			tmp = -1;
 			subtoken = strtok_r(str2, ",", &saveptr2);
 			if (subtoken == NULL)
 				break;
+			// 给对应的umask event 赋值
 			if(match(subtoken,"event=",&tmp))
 				reg->fields.event_select = tmp;
 			else if(match(subtoken,"umask=",&tmp))
@@ -246,6 +307,7 @@ void build_event(const char * argv, EventSelectRegister *reg, int idx)
 				reg->fields.in_txcp = tmp;
 			else if(match(subtoken,"pc=",&tmp))
 				reg->fields.pin_control = tmp;
+			// typedef std::istringstream pcm_sscanf; 读取offcore_rsp  offcore_response 必须放在前两个event 中？
 			else if(pcm_sscanf(subtoken) >> s_expect("offcore_rsp=") >> std::hex >> tmp2) {
 				if(idx >= 2)
 				{
